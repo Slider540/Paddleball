@@ -23,10 +23,12 @@ class Ball:
         self.hit_bottom = False
 
     def hit_paddle(self, pos):
+        global score
         paddle_pos = self.canvas.coords(self.paddle.id)
         if pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
             if paddle_pos[1] <= pos[3] <= paddle_pos[3]:
                 self.points += 1
+                score = self.points
                 self.canvas.itemconfig(points_text, text=f'Очки: {self.points}')
                 return True
         return False
@@ -72,6 +74,7 @@ class Paddle:
 
 
 if __name__ == '__main__':
+
     def start_game(event):
 
         canvas.itemconfig(start_text, state='hidden')
@@ -83,14 +86,27 @@ if __name__ == '__main__':
                 paddle.draw()
             else:
                 canvas.itemconfig(points_text, state='hidden')
-                canvas.itemconfig(end_text, state='normal')
+                if score == 1:
+                    score_text = 'очко'
+                elif 2 <= score <= 4:
+                    score_text = 'очка'
+                elif 5 <= score <= 20:
+                    score_text = 'очков'
+                elif 1 <= int(str(score)[-1:]) <= 4:
+                    score_text = 'очка'
+                else:
+                    score_text = 'очков'
+                canvas.create_text(250, 350,
+                                   text=f'Игра окончена. Вы набрали {score} {score_text}!', font=('Arial', -18))
                 tk.update()
-                time.sleep(3)
+                time.sleep(5)
                 sys.exit()
             tk.update_idletasks()
             tk.update()
             time.sleep(0.005)
 
+
+    score = 0
 
     tk = Tk()
     tk.title("Прыг-скок")
@@ -98,8 +114,8 @@ if __name__ == '__main__':
     tk.wm_attributes("-topmost", 1)
     width = 500
     height = 400
-    desktop_width = (tk.winfo_screenwidth() - 500) // 2
-    desktop_height = (tk.winfo_screenheight() - 400) // 2
+    desktop_width = (tk.winfo_screenwidth() - width) // 2
+    desktop_height = (tk.winfo_screenheight() - height) // 2
     tk.geometry(f'{width}x{height}+{desktop_width}+{desktop_height}')
     canvas = Canvas(tk, width=width, height=height, bd=0, highlightthickness=0)
     canvas.pack()
@@ -107,8 +123,6 @@ if __name__ == '__main__':
 
     start_text = canvas.create_text(250, 350, text='Нажмите "Enter" чтобы запустить игру',
                                     font=('Arial', -18))
-    end_text = canvas.create_text(250, 350, text='Игра окончена. До новых встреч!', font=('Arial', -18))
-    canvas.itemconfig(end_text, state='hidden')
     points_text = canvas.create_text(250, 350, text='Очки: 0', font=('Arial', -18))
     canvas.itemconfig(points_text, state='hidden')
     tk.update()
